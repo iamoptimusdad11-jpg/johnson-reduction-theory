@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Quantum Numerology Calculator</title>
+  <style>
+    :root{--bg:#f7fafc;--card:#ffffff;--muted:#475569;--accent:#0369a1}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;margin:18px;background:var(--bg);color:#062030}
+    .wrap{max-width:920px;margin:0 auto}
+    h1{margin:6px 0 12px}
+    .card{background:var(--card);padding:14px;border-radius:10px;box-shadow:0 8px 24px rgba(11,22,39,0.06);margin-bottom:12px}
+    label{display:block;font-weight:600;margin-bottom:6px}
+    input[type=text],select{width:100%;padding:8px;border-radius:8px;border:1px solid #dbe6ef}
+    .row{display:flex;gap:8px;align-items:center}
+    .controls{display:flex;gap:8px;flex-wrap:wrap}
+    button{padding:8px 12px;border-radius:8px;border:1px solid #cbd5e1;background:white;cursor:pointer}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;background:#f1f5f9;padding:6px;border-radius:6px}
+    pre{background:#f1f5f9;padding:8px;border-radius:6px;overflow:auto}
+    .small{color:var(--muted);font-size:13px}
+    .result{font-size:20px;font-weight:700;color:var(--accent)}
+    .flex{display:flex;gap:12px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Quantum Numerology — Live Calculator</h1>
+    <div class="card">
+      <label for="inputVal">Enter a number or token</label>
+      <input id="inputVal" type="text" placeholder="e.g. 19  or  10  or  11  or  aleph-null  or  ashtei-asar-null"/>
+      <div style="height:8px"></div>
+      <div class="row">
+        <label style="margin:0;flex:0 0 auto">Rule mode</label>
+        <div class="controls">
+          <label class="small" style="display:flex;align-items:center;gap:8px"><input id="modeToggle" type="checkbox" checked /> Treat <code class="mono">aleph-null = ashtei-asar-null</code> (unified)</label>
+          <label class="small" style="display:flex;align-items:center;gap:8px"><input id="zeroToOne" type="checkbox" checked /> Apply <code class="mono">0 = 1</code></label>
+        </div>
+      </div>
+      <div style="height:10px"></div>
+      <div class="flex">
+        <button id="btnReduce">Reduce</button>
+        <button id="btnExamples">Load examples</button>
+        <button id="btnDownload">Download HTML</button>
+        <button id="btnClear">Clear</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div class="small">Input</div>
+          <div id="showInput" class="mono">(empty)</div>
+        </div>
+        <div>
+          <div class="small">Result</div>
+          <div id="showResult" class="result">—</div>
+        </div>
+      </div>
+      <hr/>
+      <div>
+        <div class="small">Step-by-step trace</div>
+        <pre id="trace">No trace yet. Click Reduce.</pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Rules & Notes</h3>
+      <ul>
+        <li class="small">This tool implements your custom rules: <code class="mono">0 = 1</code>, <code class="mono">10 → 1</code>, <code class="mono">19 → 1</code>, and special handling of <code class="mono">11</code> depending on the mode.</li>
+        <li class="small">When <code class="mono">aleph-null = ashtei-asar-null</code> (checkbox ON), <code class="mono">11</code> is treated as a preserved master number (returns <code class="mono">11</code>). When OFF, <code class="mono">11</code> reduces to <code class="mono">2</code> (1+1).</li>
+        <li class="small">You can type named tokens like <code class="mono">aleph-null</code> or <code class="mono">ashtei-asar-null</code>. The system maps common tokens to their numeric symbolic form before reduction.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>History</h3>
+      <pre id="history">(no history)</pre>
+    </div>
+  </div>
+
+<script>
+// --- Symbolic mapping and reduction logic ---
+const symbolicMap = {
+  'aleph-null': '11',
+  'alephnull': '11',
+  'ashtei-asar-null': '11',
+  'ashtei-asar': '11',
+  'ashteiasar': '11',
+  'ashteiasar': '11'
+};
+
+function sumDigitsString(s){
+  return [...s].reduce((a,ch)=>a+Number(ch),0);
+}
+
+function digitSumReduceToSingle(nStr){
+  // Repeated digit sum until single digit
+  let s = nStr.replace(/[^0-9]/g,'');
+  if(s.length===0) return null;
+  while(s.length > 1){
+    s = String(sumDigitsString(s));
+  }
+  return Number(s);
+}
+
+function reduceNumberCore(input, options){
+  // options: {alephEqualsAshtei: boolean, zeroToOne: boolean}
+  const { alephEqualsAshtei = true, zeroToOne = true } = options;
+  let trace = [];
+
+  // normalize input string
+  let raw = String(input).trim();
+  trace.push('raw input: ' + raw);
+
+  // symbolic token handling
+  const key = raw.toLowerCase().replace(/\s+/g,'');
+  if(symbolicMap[key]){
+    trace.push(`symbolic map: ${raw} → ${symbolicMap[key]}`);
+    raw = symbolicMap[key];
+  }
+
+  // try numeric parse
+  const asNum = Number(raw);
+  if(!Number.isNaN(asNum) && raw.match(/^[-+]?\d+$/)){
+    // handle special rules first
+    if(asNum === 0){
+      trace.push('special rule: 0 maps to 1 (if enabled)');
+      return { result: (zeroToOne?1:0), trace: trace };
+    }
+
+    if(asNum === 19){
+      trace.push('special rule: 19 → 10 → 1');
+      return { result:1, trace };
+    }
+    if(asNum === 10){
+      trace.push('special rule: 10 → 1');
+      return { result:1, trace };
+    }
+    if(asNum === 11){
+      if(alephEqualsAshtei){
+        trace.push('mode: aleph-null = ashtei-asar-null — preserve 11 as master number');
+        return { result:11, trace };
+      } else {
+        trace.push('mode: aleph-null ≠ ashtei-asar-null — reduce 11 → 2');
+        return { result:2, trace };
+      }
+    }
+
+    // default path: digit-sum reduction
+    trace.push('digit-sum reduction path');
+    let s = String(Math.abs(asNum));
+    const steps = [];
+    while(s.length > 1){
+      const summed = sumDigitsString(s);
+      steps.push(`${s} → ${summed}`);
+      s = String(summed);
+    }
+    trace.push('steps: ' + steps.join(' | '));
+    let final = Number(s);
+    if(final === 0 && zeroToOne){
+      trace.push('final 0 folded to 1 by rule');
+      final = 1;
+    }
+    return { result: final, trace };
+  }
+
+  // fallback: try extracting digits inside a token
+  const digitsInside = (String(input).match(/\d+/g) || []).join('');
+  if(digitsInside.length>0){
+    trace.push('extracted digits from token: ' + digitsInside);
+    return reduceNumberCore(digitsInside, options);
+  }
+
+  // unknown token: treat as unity by default
+  trace.push('unknown token — defaulting to 1');
+  return { result: 1, trace };
+}
+
+// --- UI wiring ---
+const inputEl = document.getElementById('inputVal');
+const btnReduce = document.getElementById('btnReduce');
+const btnExamples = document.getElementById('btnExamples');
+const btnClear = document.getElementById('btnClear');
+const btnDownload = document.getElementById('btnDownload');
+const showInput = document.getElementById('showInput');
+const showResult = document.getElementById('showResult');
+const traceEl = document.getElementById('trace');
+const historyEl = document.getElementById('history');
+const modeToggle = document.getElementById('modeToggle');
+const zeroToOne = document.getElementById('zeroToOne');
+
+let history = [];
+
+function renderHistory(){
+  if(history.length===0) historyEl.textContent = '(no history)';
+  else historyEl.textContent = history.slice().reverse().map(h=>`${h.input} → ${h.result}   (${h.mode})`).join('\n');
+}
+
+btnReduce.addEventListener('click', ()=>{
+  const val = inputEl.value.trim();
+  if(val === '') return alert('Please enter a number or token');
+  const options = { alephEqualsAshtei: modeToggle.checked, zeroToOne: zeroToOne.checked };
+  const out = reduceNumberCore(val, options);
+  showInput.textContent = val;
+  showResult.textContent = out.result;
+  traceEl.textContent = out.trace.join('\n');
+  history.push({input:val,result:out.result,mode: options.alephEqualsAshtei? 'unified' : 'dual'});
+  if(history.length>200) history.shift();
+  renderHistory();
+});
+
+btnClear.addEventListener('click', ()=>{
+  inputEl.value=''; showInput.textContent='(empty)'; showResult.textContent='—'; traceEl.textContent='No trace yet.';
+});
+
+btnExamples.addEventListener('click', ()=>{
+  const ex = ['0','1','10','11','19','28','aleph-null','ashtei-asar-null','aleph-null 19','007'];
+  inputEl.value = ex[Math.floor(Math.random()*ex.length)];
+});
+
+// download self as HTML file
+btnDownload.addEventListener('click', ()=>{
+  const html = document.documentElement.outerHTML;
+  const blob = new Blob([html], {type:'text/html'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'quantum_numerology_calculator.html';
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+});
+
+// keyboard shortcut: Enter to reduce
+inputEl.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') btnReduce.click(); });
+
+</script>
+</body>
+</html>
