@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Johnson Reduction Theory – Metaphysics Visualizer</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0f0f1e, #1a1a3d, #000000);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 20px;
+    }
+    h1 {
+      margin-top: 20px;
+      text-align: center;
+    }
+    .card {
+      background: rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 20px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      backdrop-filter: blur(5px);
+      margin-bottom: 20px;
+    }
+    .input-box {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      font-size: 1rem;
+    }
+    button {
+      margin-top: 15px;
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 10px;
+      background: #4a4af5;
+      color: white;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    button:hover {
+      background: #6a6aff;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 1.4rem;
+      text-align: center;
+    }
+    .visual {
+      margin-top: 25px;
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.3), rgba(0,0,0,0.8));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      box-shadow: 0 0 30px rgba(255,255,255,0.3);
+      transition: 0.3s;
+    }
+  </style>
+</head>
+<body>
+  <h1>Johnson Reduction Theory<br>Metaphysics Visualizer</h1>
+
+  <div class="card">
+    <p>Enter any number, word, symbol, or concept. This tool will reduce it using the Johnson Reduction Theory and express its metaphysical signature.</p>
+    <input id="userInput" class="input-box" placeholder="Type here..." />
+    <button onclick="reduceValue()">Generate Signature</button>
+
+    <div id="result" class="result"></div>
+    <div id="visual" class="visual">?</div>
+  </div>
+
+  <script>
+    function reduceValue() {
+      const input = document.getElementById("userInput").value.trim();
+      const resultBox = document.getElementById("result");
+      const visual = document.getElementById("visual");
+
+      if (!input) {
+        resultBox.textContent = "Enter something to analyze.";
+        visual.textContent = "?";
+        return;
+      }
+
+      // Convert input into numeric fractals
+      const sum = Array.from(input).reduce((acc, char) => acc + char.charCodeAt(0), 0);
+
+      // Johnson Reduction (metaphysical version)
+      let reduced = sum;
+      while (reduced > 9) {
+        reduced = reduced
+          .toString()
+          .split("")
+          .reduce((a, b) => a + Number(b), 0);
+      }
+
+      // Interpret metaphysical meaning
+      const metaphysics = {
+        1: "Origin • Self • Spark",
+        2: "Duality • Reflection • Harmony",
+        3: "Creation • Expression • Flow",
+        4: "Structure • Foundation • Order",
+        5: "Motion • Change • Expansion",
+        6: "Balance • Care • Resonance",
+        7: "Mystery • Depth • Insight",
+        8: "Power • Manifestation • Will",
+        9: "Completion • Transformation • Unity",
+      };
+
+      resultBox.textContent = `Metaphysical Signature: ${metaphysics[reduced]}`;
+
+      // Visual update
+      visual.textContent = reduced;
+      visual.style.boxShadow = `0 0 40px rgba(${reduced * 25}, ${80 + reduced * 10}, 255, 0.4)`;
+      visual.style.transform = `scale(${1 + reduced * 0.03})`;
+    }
+  </script>
+  <canvas id="superCanvas" width="400" height="400" style="margin-top:30px; border-radius:12px; background:rgba(255,255,255,0.05);"></canvas>
+
+  <script>
+    // Superposition Animation + Geometric States
+    const canvas = document.getElementById('superCanvas');
+    const ctx = canvas.getContext('2d');
+    let t = 0;
+
+    function drawSuperposition(state) {
+      ctx.clearRect(0,0,400,400);
+      const cx = 200, cy = 200;
+
+      // glowing field
+      const grd = ctx.createRadialGradient(cx, cy, 20, cx, cy, 200);
+      grd.addColorStop(0, `rgba(100,150,255,0.3)`);
+      grd.addColorStop(1, `rgba(0,0,30,0.8)`);
+      ctx.fillStyle = grd;
+      ctx.fillRect(0,0,400,400);
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(t / 40);
+
+      // geometry based on metaphysical state
+      const shapes = {
+        1: 3,
+        2: 4,
+        3: 5,
+        4: 6,
+        5: 7,
+        6: 8,
+        7: 9,
+        8: 10,
+        9: 12
+      };
+
+      const sides = shapes[state] || 6;
+      const radius = 70 + Math.sin(t/20)*10;
+
+      // draw rotating polygon
+      ctx.beginPath();
+      for (let i = 0; i < sides; i++) {
+        const angle = (Math.PI * 2 * i) / sides;
+        const x = radius * Math.cos(angle);
+        const y = radius * Math.sin(angle);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = `rgba(200,220,255,0.9)`;
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // inner superposition ring
+      ctx.beginPath();
+      ctx.arc(0, 0, 40 + Math.sin(t/10)*6, 0, Math.PI*2);
+      ctx.strokeStyle = `rgba(255,255,255,0.5)`;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.restore();
+      t++;
+      requestAnimationFrame(() => drawSuperposition(state));
+    }
+
+    // Hook into existing reduction
+    const oldReduce = reduceValue;
+    reduceValue = function() {
+      oldReduce();
+      const visual = document.getElementById("visual");
+      const val = Number(visual.textContent);
+      if (val >= 1 && val <= 9) drawSuperposition(val);
+    }
+  </script>
+
+</body>
+</html>
