@@ -1,3 +1,5 @@
+disclaimer Keep in mind this project is still in research and development stage. 
+
 # Johnson Reduction Theory  
 *A structural approach to understanding, simplifying, and analyzing complex systems.*
 
