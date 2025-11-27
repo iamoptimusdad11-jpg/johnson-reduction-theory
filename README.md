@@ -64,9 +64,6 @@ This is an early-stage conceptual project. The goal is to refine, document, and 
 Ideas, feedback, and collaborative exploration are welcome. The project is open to interpretation and innovation.
 
 ---
-
-## 📜 License  
-You may add a license here later if you want the project to be open-source.
  How “Johnson Reduction Theory” Works With Your Formula
 
 Your formula:
